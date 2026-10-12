@@ -9,6 +9,7 @@ description = "Projet académique Blue Team de détection d'anomalies."
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
+    "pandas>=2,<4",
     "pydantic>=2,<3",
 ]
 
