@@ -1,5 +1,6 @@
 """Streamlit dashboard for the CyberSentinel FastAPI service."""
 
+import os
 from datetime import datetime, timezone
 
 import streamlit as st
@@ -132,7 +133,10 @@ def render_dashboard() -> None:
 
     api_base_url = st.sidebar.text_input(
         "API Base URL",
-        value="http://127.0.0.1:8000",
+        value=os.getenv(
+            "CYBERSENTINEL_API_BASE_URL",
+            "http://127.0.0.1:8000",
+        ),
     )
     if st.sidebar.button("Check API"):
         try:
