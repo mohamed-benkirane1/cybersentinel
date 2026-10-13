@@ -321,3 +321,69 @@ def test_dashboard_uses_api_url_from_environment(
     dashboard_main.render_dashboard()
 
     assert captured["value"] == "http://127.0.0.1:9999"
+
+
+def test_dashboard_handles_empty_api_url_when_checking_api(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    errors: list[str] = []
+
+    class SidebarStub:
+        def text_input(self, label: str, *, value: str) -> str:
+            return ""
+
+        def button(self, label: str) -> bool:
+            return True
+
+        def error(self, message: str) -> None:
+            errors.append(message)
+
+    streamlit_stub = SimpleNamespace(
+        sidebar=SidebarStub(),
+        set_page_config=lambda **kwargs: None,
+        title=lambda *args, **kwargs: None,
+        subheader=lambda *args, **kwargs: None,
+        caption=lambda *args, **kwargs: None,
+        info=lambda *args, **kwargs: None,
+        selectbox=lambda label, options: options[0],
+        dataframe=lambda *args, **kwargs: None,
+        button=lambda *args, **kwargs: False,
+    )
+    monkeypatch.setattr(dashboard_main, "st", streamlit_stub)
+
+    dashboard_main.render_dashboard()
+
+    assert len(errors) == 1
+    assert "api_base_url must not be empty" in errors[0]
+
+
+def test_dashboard_handles_empty_api_url_when_analyzing_events(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    errors: list[str] = []
+
+    class SidebarStub:
+        def text_input(self, label: str, *, value: str) -> str:
+            return ""
+
+        def button(self, label: str) -> bool:
+            return False
+
+    streamlit_stub = SimpleNamespace(
+        sidebar=SidebarStub(),
+        set_page_config=lambda **kwargs: None,
+        title=lambda *args, **kwargs: None,
+        subheader=lambda *args, **kwargs: None,
+        caption=lambda *args, **kwargs: None,
+        info=lambda *args, **kwargs: None,
+        selectbox=lambda label, options: options[0],
+        dataframe=lambda *args, **kwargs: None,
+        button=lambda *args, **kwargs: True,
+        error=lambda message: errors.append(message),
+    )
+    monkeypatch.setattr(dashboard_main, "st", streamlit_stub)
+
+    dashboard_main.render_dashboard()
+
+    assert len(errors) == 1
+    assert "api_base_url must not be empty" in errors[0]

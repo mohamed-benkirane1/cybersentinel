@@ -141,7 +141,7 @@ def render_dashboard() -> None:
     if st.sidebar.button("Check API"):
         try:
             health = get_health(api_base_url)
-        except DashboardAPIError as exc:
+        except (DashboardAPIError, ValueError) as exc:
             st.sidebar.error(str(exc))
         else:
             if health.get("status") == "ok" and health.get("model_ready") is True:
@@ -169,7 +169,7 @@ def render_dashboard() -> None:
     if st.button("Analyze events", type="primary"):
         try:
             result = analyze_events(api_base_url, events)
-        except DashboardAPIError as exc:
+        except (DashboardAPIError, ValueError) as exc:
             st.error(str(exc))
         else:
             _render_assessment_results(result)
